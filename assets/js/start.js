@@ -12,12 +12,12 @@ function loadHeader() {
     addHtml.text("v.06");
     $("#jumbo").html(addHtml);
 
-    addHtml = $("<h2>");
+    addHtml = $("<h1>");
     addHtml.text("Train Tracker");
-    addHtml.addClass("text-center tc-text-center");
+    addHtml.addClass("text-center tc-text-center ");
     $("#jumbo").append(addHtml);
 
-    addHtml = $("<h3>");
+    addHtml = $("<h2>");
     addHtml.text("When's the train?");
     addHtml.addClass("text-center tc-text-center");
     $("#jumbo").append(addHtml);
@@ -51,13 +51,15 @@ function loadTrain() {
     trainDest = $("#train-dest").val().trim();
     trainFirst = $("#train-first").val().trim();
     trainFreq = $("#train-freq").val().trim();
-    database.ref().push({
-        trainName: trainName,
-        trainDest: trainDest,
-        trainFirst: moment(trainFirst, "hh:mm").format("X"),
-        trainFreq: moment(trainFreq, "mm").format("X"),
-        trainAdded: firebase.database.ServerValue.TIMESTAMP
-    });
+    if (trainName != "") {
+        database.ref().push({
+            trainName: trainName,
+            trainDest: trainDest,
+            trainFirst: moment(trainFirst, "hh:mm").format("X"),
+            trainFreq: moment(trainFreq, "mm").format("X"),
+            trainAdded: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
     console.log(firebase.database.ServerValue.TIMESTAMP);
     console.log(moment(firebase.database.ServerValue.TIMESTAMP, "X").format("MM/DD/YYYY"));
     console.log("My train " + trainName);
@@ -102,14 +104,14 @@ function listTrain() {
         var nextTrain = 0;
         var dspTrainFirst = moment(sv.trainFirst, "X").format("hh:mm A");
         var dspTrainFreq = moment(sv.trainFreq, "X").format("mm");
-        var dspTrainMin = moment().subtract(sv.trainFirst,"X").format("hh:mm");
-        console.log(dspTrainMin);
-        nextTrain = (moment().subtract(sv.trainFirst,"X"));
+        var dspTrainMin = moment().subtract(sv.trainFirst, "X").format("hh:mm");
+        console.log(moment(dspTrainMin, "X").format("hh:mm"));
+        nextTrain = (moment().subtract(sv.trainFirst, "X"));
         console.log(sv.trainFirst);
-//        nextTrain = ((moment().subtract(moment(sv.trainFirst, "X")) % dspTrainFreq).format("mm"));
+        //        nextTrain = ((moment().subtract(moment(sv.trainFirst, "X")) % dspTrainFreq).format("mm"));
 
-//        nextTrain = (now - dspTrainFirst)%dspTrainFreq ... dspTrainFreq - remainder = nex
-//        nextTrain = (moment().subtract(moment(sv.trainFirst, "X"))).format("hh:mm");
+        //        nextTrain = (now - dspTrainFirst)%dspTrainFreq ... dspTrainFreq - remainder = nex
+        //        nextTrain = (moment().subtract(moment(sv.trainFirst, "X"))).format("hh:mm");
         console.log("calc minutes: " + moment().subtract(moment(sv.trainFirst, "hh:mm")).format("X"));
         console.log("calc next time: " + nextTrain);
 
