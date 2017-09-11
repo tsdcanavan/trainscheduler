@@ -17,6 +17,7 @@
     font-size: 1.5em;
 }
 #version {
+        font-family: sans-serif;
         text-align: right;
         font-size: .5sem;
     }
