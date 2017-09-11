@@ -1,7 +1,7 @@
 var config;
 var database;
 var trainList;
-var trainListArray= [];
+var trainListArray = [];
 
 function loadHeader() {
     console.log("header loading...");
@@ -51,11 +51,15 @@ function loadTrain() {
     trainDest = $("#train-dest").val().trim();
     trainFirst = $("#train-first").val().trim();
     trainFreq = $("#train-freq").val().trim();
-    database.ref(trainName).set({
+    database.ref().push({
+        trainName: trainName,
         trainDest: trainDest,
-        trainFirst: trainFirst,
-        trainFreq: trainFreq,
+        trainFirst: moment(trainFirst, "hh:mm").format("X"),
+        trainFreq: moment(trainFreq, "mm").format("X"),
+        trainAdded: firebase.database.ServerValue.TIMESTAMP
     });
+    console.log(firebase.database.ServerValue.TIMESTAMP);
+    console.log(moment(firebase.database.ServerValue.TIMESTAMP, "X").format("MM/DD/YYYY"));
     console.log("My train " + trainName);
     console.log("My dest " + trainDest);
     console.log("My time " + trainFirst);
@@ -71,43 +75,69 @@ function loadTrain() {
 function listTrain() {
     // put the trains in a table
     console.log("in listTrain");
+
     $("#my-table").empty();
+
+    //add table
     var tableHtml = $("<table>");
-    tableHtml.html("<thead><tr><th>Train Name</th><th>Train Dest</th>" +
-                    "<th>Train Schedule</th><th>Train Freq</th><th>Next Train</th></tr></thead>");
-    tableHtml.attr("class","table");
+    tableHtml.attr("id", "new-table");
+    tableHtml.attr("class", "table");
     $("#my-table").append(tableHtml);
-    
-    database.ref().on("value", function(snapshot) {
-        var setRow = "<tbody>";
-        for (var key in snapshot.val()) {
-            if (snapshot.val().hasOwnProperty(key)) {
-                var obj = snapshot.val()[key];
-                console.log(key);
-                setRow = setRow + "<tr><td>" + key + "</td>";
-                for (var prop in obj) { 
-                    if (obj.hasOwnProperty(prop)) {
-                        console.log(prop + " = " + obj[prop]);
-                        setRow= setRow + "<td>" + obj[prop] + "</td>";
-                        // if (prop === "trainFirst") {
-                        //     var startTime = obj[prop];
-                        //     console.log(moment().format());
-                        // }
-                        // if (prop === "trainFreq") {
-                        //     var nextTime = obj[prop];
-                        //     console.log(nextTime);
-                        // }
-                        // var nextTrain = moment().add(nextTime, "minutes").calendar(trainFirst);
-                        // console.log(nextTrain)
-                        // setRow= setRow + "<td>" + nextTrain + "</td>";
-                    }
-                }
-                setRow = setRow + "</tr>";
-            }
-        }
-        setRow = setRow + "</tbody>"
-        tableHtml.append(setRow);
-        $("#my-table").append(tableHtml);
+
+    // add header
+    var tableHtml = $("<thead>");
+    tableHtml.html("<tr><th>Train Name</th><th>Train Dest</th>" +
+        "<th>Train Schedule</th><th>Train Freq</th><th>Next Train</th></tr>");
+    tableHtml.attr("id", "new-header");
+    $("#new-table").append(tableHtml);
+
+    // add body
+    var tableHtml = $("<tbody>");
+    tableHtml.attr("class", "body");
+    tableHtml.attr("id", "new-body");
+    $("#new-table").append(tableHtml);
+
+    database.ref().on("child_added", function (snapshot) {
+        var sv = snapshot.val();
+        var nextTrain = 0;
+        var dspTrainFirst = moment(sv.trainFirst, "X").format("hh:mm A");
+        var dspTrainFreq = moment(sv.trainFreq, "X").format("mm");
+        var dspTrainMin = moment().subtract(sv.trainFirst,"X").format("hh:mm");
+        console.log(dspTrainMin);
+        nextTrain = (moment().subtract(sv.trainFirst,"X"));
+        console.log(sv.trainFirst);
+//        nextTrain = ((moment().subtract(moment(sv.trainFirst, "X")) % dspTrainFreq).format("mm"));
+
+//        nextTrain = (now - dspTrainFirst)%dspTrainFreq ... dspTrainFreq - remainder = nex
+//        nextTrain = (moment().subtract(moment(sv.trainFirst, "X"))).format("hh:mm");
+        console.log("calc minutes: " + moment().subtract(moment(sv.trainFirst, "hh:mm")).format("X"));
+        console.log("calc next time: " + nextTrain);
+
+        // Change the HTML for each train
+        var updHtml = $("<tr>");
+        updHtml.html("<td>" + sv.trainName + "</td><td>" +
+            sv.trainDest + "</td><td>" + dspTrainFirst +
+            "</td><td>" + dspTrainFreq + "</td><td>" +
+            nextTrain + "</td>");
+        $("#new-body").append(updHtml);
+
+        // for (var key in snapshot.val()) {
+        //     if (snapshot.val().hasOwnProperty(key)) {
+        //         var obj = snapshot.val()[key];
+        //         console.log(key);
+        //         setRow = setRow + "<tr><td>" + key + "</td>";
+        //         for (var prop in obj) {
+        //             if (obj.hasOwnProperty(prop)) {
+        //                 console.log(prop + " = " + obj[prop]);
+        //                 setRow = setRow + "<td>" + obj[prop] + "</td>";
+        //             }
+        //         }
+        //         setRow = setRow + "</tr>";
+        //     }
+        // }
+        // setRow = setRow + "</tbody>"
+        // tableHtml.append(setRow);
+        // $("#my-table").append(tableHtml);
     });
 }
 
@@ -123,27 +153,3 @@ $(document).on("click", "#add-train", function (e) {
 });
 
 listTrain();
-// At the initial load and subsequent value changes, get a snapshot of the local data.
-// This function allows you to update your page in real-time when the firebase database changes.
-// fb.ref().on("value", function(snapshot) {
-//     console.log(snapshot.val().highestBid);
-//     console.log(snapshot.val().highestName);
-  
-//     // If Firebase has a highPrice and highBidder stored (first case)
-//     if (snapshot.child("highBidder").exists() && snapshot.child("highPrice").exists()) {
-  
-//       // Set the local variables for highBidder equal to the stored values in firebase.
-//       highestPrice = snapshot.val().highPrice;
-//       highestBidder = snapshot.val().highBidder;
-  
-//       // change the HTML to reflect the newly updated local values (most recent information from firebase)
-//       $("#highest-bidder").html(highestBidder);
-//       $("#highest-price").html(highestPrice);
-  
-//       // Print the local data to the console.
-//       console.log(highestPrice);
-//       console.log(highestBidder);
-      
-//     }
-
-// });
