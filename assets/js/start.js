@@ -21,6 +21,7 @@ function loadHeader() {
     $("#jumbo").append("<hr>");
 
     addHtml = $("<div>");
+    addHtml.attr("class", "standard-font")
     addHtml.attr("id", "version");
     addHtml.text("v1.00");
     $("#jumbo").append(addHtml);

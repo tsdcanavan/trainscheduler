@@ -4,9 +4,14 @@
     src: url("../fonts/Toy Train.ttf") format("truetype");
 }
 
-.customfont {
+.custom-font {
     font-family: "MyTrainFont", Verdana, Geneva, Tahoma, sans-serif;
 }
+
+.standard-font {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
 .tc-jumbotron {
         padding-top: 10px 0 0 0; 
         background-color: blue;
@@ -16,8 +21,8 @@
 .big {
     font-size: 1.5em;
 }
+
 #version {
-        font-family: sans-serif;
         text-align: right;
         font-size: .5sem;
     }
