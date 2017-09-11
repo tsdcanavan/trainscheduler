@@ -6,11 +6,7 @@ var trainListArray = [];
 function loadHeader() {
     console.log("header loading...");
     // load the jumbotron - love the jumbotron
-
-    addHtml = $("<div>");
-    addHtml.attr("id", "version");
-    addHtml.text("v.06");
-    $("#jumbo").html(addHtml);
+    $("#jumbo").empty();
 
     addHtml = $("<h1>");
     addHtml.text("Train Tracker");
@@ -23,6 +19,12 @@ function loadHeader() {
     $("#jumbo").append(addHtml);
 
     $("#jumbo").append("<hr>");
+
+    addHtml = $("<div>");
+    addHtml.attr("id", "version");
+    addHtml.text("v1.00");
+    $("#jumbo").append(addHtml);
+
 
     $(document).ready(function () {
         $(this).scrollTop(0);
